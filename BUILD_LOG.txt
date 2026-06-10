@@ -195,5 +195,70 @@ FILE TREE (engine/):
   engine/strategy.py         — Original strategy (backward compatible)
 
 ==============================================
+DATE: 2026-06-10
+TIME: 18:04 UTC
+SESSION: 5 - BUG FIXES, OPTIMIZER RERUN, GITHUB PUSH
+==============================================
+
+WHAT WAS BUILT:
+- Fixed indicator pre-computation bug in backtest_strategy.py
+- Moved _skip_indicator_computation flag from __init__ to after set_full_data pre-computation
+- Verified indicators are properly computed (33 columns including macd_diff, rsi_14, bb_position, ema_9)
+- Pushed to GitHub: https://github.com/bhupendermehra-netizen/Harmesh-Trading-Bot
+- Checked OpenCode v1.15.12 installation (works with free opencode/big-pickle model)
+
+FILES CREATED/MODIFIED:
+- MODIFIED: engine/backtest_strategy.py — moved skip flag after pre-computation in set_full_data()
+
+FOLDERS CREATED:
+- None
+
+PACKAGES INSTALLED:
+- None
+
+CURRENT STATUS:
+- Phase: 1 (Paper Trading)
+- Trade count: 0
+- Win Rate: N/A
+- Best strategy combo: trend_following + volatility_breakout
+  Score=9.36 WR=31.8% PF=1.20 Ret=+3.60% DD=17.0% Sharpe=5.08
+
+NEXT STEPS:
+- Improve strategy performance toward Phase 2 thresholds (WR>55%, PF>1.5, 200+ trades)
+- Add more data or longer timeframe for better signal quality
+- Test with different parameter ranges in optimizer
+- Walk-forward analysis to prevent overfitting
+
+ERRORS:
+- None (all strategies now produce differentiated results)
+
+FILE TREE (/root/harmesh/):
+  engine/backtest.py              — Core backtest engine
+  engine/backtest_strategy.py     — Pre-computed strategy wrapper (FIXED)
+  engine/strategy_advanced.py     — Multi-strategy engine (3 families)
+  engine/strategy.py              — Original strategy
+  engine/exchange.py              — Exchange connector
+  engine/live.py                  — Live trading engine
+  engine/paper.py                 — Paper trading
+  engine/paper_advanced.py        — Advanced paper engine
+  engine/regime.py                — Market regime detector
+  engine/risk.py                  — Risk management
+  engine/analytics.py             — Performance analytics
+  engine/mock_exchange.py         — Mock exchange
+  engine/__init__.py              — Empty
+  optimize_params.py              — Random search optimizer
+  run_backtest.py                 — Backtest runner
+  dashboard.py                    — Dashboard UI
+  config.json                     — Bot config
+  scripts/fetch_data.py           — Data fetcher
+  data/optimization_results.json  — Optimizer results (NEW)
+  data/optimization_run.log       — Optimizer run log (NEW)
+  data/historical_btc_1h.csv      — BTC 1h OHLCV data
+  data/paper_state.json           — Paper state
+  BUILD_LOG.txt                   — Session log
+  README.md                       — README
+  main.py                         — Entry point
+
+==============================================
 END OF SESSION LOG
 ==============================================

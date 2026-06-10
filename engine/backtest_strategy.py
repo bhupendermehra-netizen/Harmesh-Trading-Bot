@@ -23,13 +23,13 @@ class BacktestStrategy:
         self.name = "HarmeshAdvanced"
         self._precomputed = None
 
-        # Skip indicator recomputation in backtest mode
-        # (set_full_data pre-computes everything once)
-        self.advanced._skip_indicator_computation = True
-
     def set_full_data(self, df: pd.DataFrame):
-        """Pre-compute all indicators on the full DataFrame once."""
+        """Pre-compute all indicators on the full DataFrame once.
+        Sets skip flag AFTER pre-computation so strategies use
+        pre-computed indicators without recomputing per candle.
+        """
         self._precomputed = self.advanced.compute_all_indicators(df.copy())
+        self.advanced._skip_indicator_computation = True
 
     def generate_signal(self, df: pd.DataFrame) -> dict:
         """Generate trading signal from current candle slice."""
