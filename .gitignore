@@ -1,0 +1,11 @@
+# Harmesh - Bitcoin Trading Bot
+__pycache__/
+*.py[cod]
+venv/
+.env
+data/*.csv
+data/*.json
+.cache/
+*.log
+ccxt/
+freqtrade/

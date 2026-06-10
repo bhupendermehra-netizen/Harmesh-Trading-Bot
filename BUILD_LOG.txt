@@ -1,0 +1,199 @@
+==============================================
+DATE: 2026-05-29
+TIME: 09:30 UTC
+SESSION: 1 - INITIAL SETUP
+==============================================
+
+WHAT WAS BUILT:
+- Initial Harmesh trading system setup
+- Project structure at ~/harmesh/
+- CCXT exchange connector
+- Mock exchange for paper trading
+- MACD+RSI trading strategy
+- EMA crossover strategy
+- Basic risk manager with ATR-based sizing
+- Paper trading engine (Phase 1)
+- Live trading engine shell (Phase 2, locked)
+- Main entry point with CLI arguments
+
+FILES CREATED:
+- ~/harmesh/main.py
+- ~/harmesh/config.json
+- ~/harmesh/requirements.txt
+- ~/harmesh/engine/__init__.py
+- ~/harmesh/engine/exchange.py
+- ~/harmesh/engine/mock_exchange.py
+- ~/harmesh/engine/strategy.py
+- ~/harmesh/engine/risk.py
+- ~/harmesh/engine/paper.py
+- ~/harmesh/engine/live.py
+- ~/harmesh/BUILD_LOG.txt
+
+PACKAGES INSTALLED:
+- ccxt v4.4+
+- pandas, numpy, python-ta
+- flask (for future dashboard)
+- schedule, rich, tabulate
+
+CURRENT STATUS:
+- Phase: Paper Trading (Phase 1)
+- Paper trade count: 0
+- Win rate: 0.0%
+- Balance: $1,000.00 (initial capital)
+- Phase 2 locked (requires 200 trades, 55% win rate, 1.5 profit factor, 7 days)
+
+NEXT STEPS:
+- Run system: python main.py --mode paper
+- Configure exchange API keys for real market data
+- Let paper run for 7+ days to accumulate 200+ trades
+- Check upgrade readiness with --check-upgrade flag
+
+ERRORS:
+- None at setup
+
+==============================================
+END OF SESSION LOG
+==============================================
+
+==============================================
+DATE: 2026-05-29
+TIME: 10:03 UTC
+SESSION: 2 - FIRST PAPER TRADE RUN
+==============================================
+
+WHAT WAS DONE:
+- Ran paper trading system in demo mode (--no-exchange --interval 5)
+- System restored prior state with 2 open trades (SOL, BNB)
+- Opened 3rd paper trade: BTC/USDT long
+- Reached max open trades (3) limit
+- Ran for 22 ticks over ~2 minutes
+- Positions showing unrealized gains
+
+FILES MODIFIED:
+- ~/harmesh/data/paper_state.json
+- ~/harmesh/logs/system.log
+
+CURRENT STATUS:
+- Phase: Paper Trading (Phase 1)
+- Paper trade count: 0 closed, 3 open (SOL, BNB, BTC)
+- Win rate: 0.0%
+- Balance: $1,003.65 (total equity)
+- Phase 2 locked
+
+NEXT STEPS:
+- Run long-duration paper trading
+- Configure exchange API keys
+- Let paper run for 7+ days
+
+ERRORS:
+- Mock exchange prices stabilized (demo mode limitation)
+
+==============================================
+END OF SESSION LOG
+==============================================
+
+==============================================
+DATE: 2026-05-29
+TIME: 10:03 UTC
+SESSION: 3 - DASHBOARD ADDED
+==============================================
+
+WHAT WAS BUILT:
+- Flask web dashboard with dark theme
+- Auto-refresh every 30 seconds
+
+FILES CREATED:
+- ~/harmesh/dashboard.py
+- ~/harmesh/logs/dashboard.log
+
+PACKAGES INSTALLED:
+- flask v3.1.3, werkzeug, jinja2, markupsafe, itsdangerous, blinker, click
+
+DASHBOARD SECTIONS:
+- Top bar, portfolio cards, Phase 2 progress bar
+- Open positions table, trade history table
+- Build log section
+
+CURRENT STATUS:
+- Dashboard running on http://localhost:5000
+- 3 open positions (SOL, BNB, BTC) visible
+- No closed trades yet
+- Build log renders correctly
+
+ERRORS:
+- None
+
+==============================================
+END OF SESSION LOG
+==============================================
+
+==============================================
+DATE: 2026-06-10
+TIME: 15:24 UTC
+SESSION: 4 - MAJOR UPGRADE v2.0
+==============================================
+
+WHAT WAS BUILT:
+- Complete V2.0 upgrade of Harmesh Trading System
+- Market Regime Detector (trending/ranging/volatile/calm)
+- Advanced Strategy Engine with multi-timeframe + ML signals
+- Advanced Risk Manager (Kelly Criterion, volatility-adjusted, trailing stops)
+- Backtesting Engine with walk-forward analysis + Monte Carlo simulation
+- Performance Analytics module (Sharpe, Sortino, Calmar, Omega, Profit Factor)
+- Updated config.json with all V2.0 parameters
+- Backward-compatible RiskManager class for original PaperTradingEngine
+
+FILES CREATED:
+- ~/harmesh/engine/regime.py (9,886 bytes)
+- ~/harmesh/engine/strategy_advanced.py (25,082 bytes)
+- ~/harmesh/engine/analytics.py (16,894 bytes)
+- ~/harmesh/engine/backtest.py (20,390 bytes)
+- ~/harmesh/engine/paper_advanced.py (23,362 bytes)
+
+FILES MODIFIED:
+- ~/harmesh/engine/risk.py (rewritten, 17,059 bytes)
+- ~/harmesh/config.json (2,881 bytes)
+
+PACKAGES INSTALLED:
+- None (using existing pandas, numpy, python-ta, xgboost)
+
+CURRENT STATUS:
+- Phase: Paper Trading (Phase 1) — upgraded to V2.0
+- Advanced strategy engine ready: trend_following + mean_reversion + volatility_breakout
+- ML signal enhancement: XGBoost-based (enabled)
+- Multi-timeframe: 15m / 1h / 4h (enabled)
+- Regime detection: ADX + volatility + trend slope (enabled)
+- Risk sizing: volatility-adjusted Kelly Criterion (kelly_fraction=0.25)
+- Backtest: walk-forward + 1000 MC simulations (ready)
+- Mode: config.json set to "paper_advanced" for V2.0 paper trading
+- Phase 2 remains locked
+
+NEXT STEPS:
+- Run advanced paper trading to validate
+- Run backtest with historical data
+- Tune strategy parameters based on backtest results
+- Walk-forward analysis to prevent overfitting
+- Accumulate 200+ trades to unlock Phase 2
+
+ERRORS:
+- OpenCode big-pickle free model too slow for interactive use
+- live.py: cannot import LiveTradingEngine (pre-existing)
+- All 5 new modules + 2 modified modules import clean with 0 errors
+
+FILE TREE (engine/):
+  engine/analytics.py        — Performance metrics (Sharpe, Sortino, Calmar, Omega)
+  engine/backtest.py         — Walk-forward + Monte Carlo backtesting
+  engine/exchange.py         — Exchange connector
+  engine/__init__.py         — Empty
+  engine/live.py             — Live trading engine
+  engine/mock_exchange.py    — Mock exchange for testing
+  engine/paper_advanced.py   — Advanced paper engine (V2.0)
+  engine/paper.py            — Original paper engine (backward compatible)
+  engine/regime.py           — Market regime detector
+  engine/risk.py             — Advanced risk manager + backward compat
+  engine/strategy_advanced.py— Multi-strategy + ML engine (V2.0)
+  engine/strategy.py         — Original strategy (backward compatible)
+
+==============================================
+END OF SESSION LOG
+==============================================

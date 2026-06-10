@@ -1,0 +1,111 @@
+{
+  "system": {
+    "name": "Harmesh Trading System v2.0",
+    "version": "2.0.0",
+    "data_dir": "data",
+    "log_dir": "logs",
+    "mode": "paper_advanced"
+  },
+  "exchange": {
+    "name": "binance",
+    "sandbox": true,
+    "api_key": "",
+    "api_secret": "",
+    "options": {
+      "defaultType": "spot",
+      "adjustForTimeDifference": true,
+      "recvWindow": 10000
+    }
+  },
+  "paper": {
+    "enabled": true,
+    "initial_capital": 1000.0,
+    "min_trades_for_upgrade": 200,
+    "min_days_for_upgrade": 7,
+    "win_rate_threshold": 0.55,
+    "profit_factor_threshold": 1.5,
+    "trade_log": "logs/paper_trades.csv",
+    "state_file": "data/paper_state.json"
+  },
+  "live": {
+    "enabled": false,
+    "initial_capital": 100.0,
+    "max_risk_per_trade": 0.02,
+    "stop_loss_atr_multiplier": 2.0,
+    "take_profit_atr_multiplier": 4.0,
+    "trade_log": "logs/live_trades.csv",
+    "state_file": "data/live_state.json"
+  },
+  "trading": {
+    "symbols": ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT"],
+    "timeframe": "1h",
+    "strategy": "advanced",
+    "slippage": 0.001,
+    "fee_rate": 0.001
+  },
+  "advanced_strategy": {
+    "active_strategies": ["trend_following", "mean_reversion", "volatility_breakout"],
+    "fusion_method": "weighted",
+    "mtf_enabled": true,
+    "mtf_timeframes": ["15m", "1h", "4h"],
+    "ml_enabled": true,
+    "trend_params": {
+      "ema_fast": 9,
+      "ema_slow": 21,
+      "macd_fast": 12,
+      "macd_slow": 26,
+      "macd_signal": 9,
+      "adx_threshold": 25
+    },
+    "mean_reversion_params": {
+      "rsi_period": 14,
+      "rsi_oversold": 30,
+      "rsi_overbought": 70,
+      "bb_period": 20,
+      "bb_std": 2.0,
+      "mean_reversion_threshold": 0.02
+    },
+    "volatility_params": {
+      "bb_breakout_threshold": 2.5,
+      "kc_period": 20,
+      "kc_multiplier": 2.0,
+      "volume_surge_mult": 1.5
+    }
+  },
+  "regime": {
+    "adx_trend_threshold": 25,
+    "adx_strong_trend": 35,
+    "vol_lookback": 100,
+    "vol_high_percentile": 80,
+    "vol_low_percentile": 20,
+    "trend_lookback": 50,
+    "trend_slope_threshold": 0.0001,
+    "ranging_deviation": 0.03
+  },
+  "risk": {
+    "max_open_trades": 3,
+    "max_position_size_pct": 0.5,
+    "min_balance_for_trade": 10.0,
+    "sizing_method": "volatility_adjusted",
+    "kelly_fraction": 0.25,
+    "kelly_window": 50,
+    "trailing_stop": true,
+    "trailing_stop_activation_pct": 0.02,
+    "trailing_stop_distance_pct": 0.015,
+    "max_drawdown_pct": 0.25,
+    "drawdown_recovery_mult": 0.5,
+    "correlation_limit": 0.7,
+    "correlation_lookback": 100,
+    "cooldown_period_hours": 0
+  },
+  "backtest": {
+    "initial_capital": 10000.0,
+    "commission": 0.001,
+    "slippage": 0.001,
+    "walk_forward_enabled": true,
+    "walk_forward_train_pct": 0.7,
+    "walk_forward_window": 500,
+    "monte_carlo_enabled": true,
+    "monte_carlo_simulations": 1000
+  }
+}
