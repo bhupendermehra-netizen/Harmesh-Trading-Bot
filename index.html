@@ -268,6 +268,11 @@ tbody tr:hover { background: #1c2128; }
 (async function() {
   const DATA_URL = 'data/dashboard.json';
 
+  // Chart instances — declared at top so all functions can access them without TDZ errors
+  let strategyChart = null;
+  let equityChart = null;
+  let currentParamTab = null;
+
   try {
     const resp = await fetch(DATA_URL + '?t=' + Date.now());
     if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
@@ -361,7 +366,6 @@ tbody tr:hover { background: #1c2128; }
   }
 
   // ---- STRATEGY CHART ----
-  let strategyChart = null;
   function renderStrategyChart(opt) {
     const names = [];
     const scores = [];
@@ -447,7 +451,6 @@ tbody tr:hover { background: #1c2128; }
   }
 
   // ---- EQUITY CHART ----
-  let equityChart = null;
   function renderEquityChart(paper) {
     const eq = paper.equity_curve;
     const labels = eq.map((_, i) => i);
@@ -568,7 +571,6 @@ tbody tr:hover { background: #1c2128; }
   }
 
   // ---- PARAMS TAB ----
-  let currentParamTab = null;
   function renderParams(strategies) {
     const tabs = document.getElementById('paramsTabs');
     const content = document.getElementById('paramsContent');
