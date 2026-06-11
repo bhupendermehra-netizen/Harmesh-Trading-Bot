@@ -5,6 +5,7 @@ venv/
 .env
 data/*.csv
 data/*.json
+!data/dashboard.json
 .cache/
 *.log
 ccxt/
