@@ -8,3 +8,13 @@ dist/
 build/
 .env
 .git-askpass.sh
+venv
+venv/
+.virtual_documents/
+*.legacy
+*.log
+data/paper_state.json
+data/backtest_results.json
+data/backtest_equity.csv
+data/backtest_trades.csv
+logs/

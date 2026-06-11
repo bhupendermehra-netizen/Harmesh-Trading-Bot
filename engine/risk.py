@@ -159,12 +159,16 @@ class AdvancedRiskManager:
 
         # Calculate size
         risk_amount = capital * risk_per_trade
-        position_size = risk_amount / price_risk
+        position_size = risk_amount / max(price_risk, entry_price * 0.005)
 
-        # Cap as % of capital
+        # Hard cap: never exceed 50% of capital in a single position
         max_position_pct = min(0.5 * regime_mult, 0.7)
         max_position = (capital * max_position_pct) / entry_price
         position_size = min(position_size, max_position)
+
+        # Sanity cap: never exceed what 100% of capital could buy
+        absolute_max = capital / max(entry_price, 0.01)
+        position_size = min(position_size, absolute_max)
 
         logger.info(
             f"Position size for {symbol}: {position_size:.6f} units "
@@ -399,8 +403,8 @@ class AdvancedRiskManager:
 
     def compute_profit_factor(self, trades: list) -> float:
         """Profit factor: gross profit / gross loss."""
-        gross_profit = sum(t.pnl for t in trades if t.pnl and t.pnl > 0)
-        gross_loss = abs(sum(t.pnl for t in trades if t.pnl and t.pnl < 0))
+        gross_profit = sum(t.pnl for t in trades if t.pnl is not None and t.pnl > 0)
+        gross_loss = abs(sum(t.pnl for t in trades if t.pnl is not None and t.pnl < 0))
         return gross_profit / gross_loss if gross_loss > 0 else 999.0
 
     def compute_expectancy(self, trades: list) -> float:

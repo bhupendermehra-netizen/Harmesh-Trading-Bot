@@ -1,0 +1,14 @@
+FROM python:3.12-slim as base
+FROM base as dev
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+CMD ["python", "run.py"]
+
+FROM base as test
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt pytest
+COPY . .
+CMD ["python", "-m", "pytest", "tests/", "-v"]

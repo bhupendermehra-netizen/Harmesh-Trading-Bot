@@ -369,12 +369,15 @@ class BacktestEngine:
         profit_factor = risk.compute_profit_factor(trades)
         dd_metrics = risk.compute_max_drawdown(equity_curve)
 
-        # Use equity-curve hourly returns for Sharpe/Sortino (per-candle sampling)
-        # This ensures the annualization factor of sqrt(365*24) is correct
-        if len(equity_curve) > 1:
-            hourly_returns = np.diff(equity_curve) / equity_curve[:-1]
-            sharpe = risk.compute_sharpe_ratio(hourly_returns.tolist())
-            sortino = risk.compute_sortino_ratio(hourly_returns.tolist())
+        # Use trade-based returns for Sharpe/Sortino (not hourly equity curve)
+        # Hourly equity curve returns create inflated Sharpe due to flat periods
+        if len(returns) > 1:
+            sharpe = risk.compute_sharpe_ratio(returns)
+            sortino = risk.compute_sortino_ratio(returns)
+        elif len(equity_curve) > 1:
+            trade_returns = np.diff(equity_curve) / equity_curve[:-1]
+            sharpe = risk.compute_sharpe_ratio(trade_returns.tolist())
+            sortino = risk.compute_sortino_ratio(trade_returns.tolist())
         else:
             sharpe = 0.0
             sortino = 0.0
@@ -550,7 +553,7 @@ class BacktestEngine:
 
         if mc_results:
             lines.append(f"MONTE CARLO ({mc_results['simulations']} simulations):")
-            lines.append(f"Prob Profit:    {mc_results['prob_profit:.1%']}")
+            lines.append(f"Prob Profit:    {mc_results.get('prob_profit', 0):.1%}")
             lines.append(f"Expected Eq:   ${mc_results['expected_final_equity']:,.2f}")
             lines.append(f"Median Eq:     ${mc_results['median_final_equity']:,.2f}")
             lines.append(f"Worst Case:    ${mc_results['worst_case_equity']:,.2f}")

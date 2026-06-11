@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmesh Trading Terminal</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="app-container">
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <span class="logo-symbol">&#x25B4;</span>
+        <span class="logo-text">HARMESH</span>
+        <span class="logo-version">v3.0</span>
+      </div>
+      <span class="phase-badge phase-{{ 'live' if live_mode else 'paper' }}">
+        {{ 'LIVE' if live_mode else 'PAPER' }}
+      </span>
+      <span class="mode-indicator">
+        <span class="conn-indicator conn-on"></span>
+        Running
+      </span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-time">{{ now }}</span>
+      <span class="refresh-badge" onclick="location.reload()">&#x21bb;</span>
+    </div>
+  </header>
+
+  <!-- Main Grid -->
+  <div class="main-grid">
+    <!-- Left Column: Charts + Risk -->
+    <div class="col-main">
+      <!-- Key Metrics -->
+      <div class="cards">
+        <div class="card blue">
+          <div class="card-label">Total Equity</div>
+          <div class="card-value {{ equity_color }}">${{ "%.2f"|format(equity) }}</div>
+          <div class="card-sub">Initial: ${{ "%.0f"|format(initial_capital) }}</div>
+        </div>
+        <div class="card blue">
+          <div class="card-label">Cash Available</div>
+          <div class="card-value">${{ "%.2f"|format(balance) }}</div>
+        </div>
+        <div class="card blue">
+          <div class="card-label">Open Positions</div>
+          <div class="card-value">{{ open_count }}</div>
+          <div class="card-sub">Max 3 concurrent</div>
+        </div>
+        <div class="card blue">
+          <div class="card-label">Closed Trades</div>
+          <div class="card-value">{{ closed_count }}</div>
+          <div class="card-sub">All time</div>
+        </div>
+      </div>
+
+      <!-- Chart Section -->
+      <div class="chart-grid">
+        <div class="chart-box span-2">
+          <div class="chart-tabs">
+            <span class="chart-tab active" data-chart="equity">Equity Curve</span>
+            <span class="chart-tab" data-chart="underwater">Drawdown</span>
+            <span class="chart-tab" data-chart="pnldist">PnL Distribution</span>
+          </div>
+          <canvas id="mainChart" height="280"></canvas>
+        </div>
+      </div>
+
+      <!-- Risk Metrics -->
+      <div class="section-header">
+        <span class="section-title">Risk-Adjusted Performance</span>
+      </div>
+      <div class="metrics-grid">
+        {% for m in metrics %}
+        <div class="metric-item">
+          <div class="metric-label">{{ m.label }}</div>
+          <div class="metric-value" style="color:{{ m.color }}">{{ m.value }}</div>
+          <div class="metric-sub">{{ m.sub }}</div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Trade History -->
+      <div class="section-header">
+        <span class="section-title">Trade History</span>
+        <span class="section-subtitle">Last 30 paper trades</span>
+      </div>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Pair</th>
+              <th>Side</th>
+              <th class="r">Entry</th>
+              <th class="r">Exit</th>
+              <th class="r">P&L</th>
+              <th class="r">Return</th>
+              <th class="c">Result</th>
+              <th>Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for t in closed_trades %}
+            <tr>
+              <td class="muted">{{ t.date }}</td>
+              <td>{{ t.pair }}</td>
+              <td class="{{ 'green' if t.side == 'long' else 'red' }}">{{ t.side|upper }}</td>
+              <td class="r">${{ "%.2f"|format(t.entry) }}</td>
+              <td class="r">${{ "%.2f"|format(t.exit) }}</td>
+              <td class="r {{ 'green' if t.pnl >= 0 else 'red' }}">${{ "%.2f"|format(t.pnl) }}</td>
+              <td class="r {{ 'green' if t.pnl_pct >= 0 else 'red' }}">{{ "%+.2f"|format(t.pnl_pct) }}%</td>
+              <td class="c">
+                <span class="{{ 'badge-win' if t.pnl >= 0 else 'badge-loss' }}">
+                  {{ 'WIN' if t.pnl >= 0 else 'LOSS' }}
+                </span>
+              </td>
+              <td class="muted">{{ t.reason }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="9" class="c muted" style="padding:24px;">No closed trades yet</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Column: Status + Progress -->
+    <div class="col-side">
+      <!-- Phase Progress -->
+      <div class="side-card">
+        <div class="side-card-title">Phase Progression</div>
+        <div class="progress-stack">
+          <div class="progress-item">
+            <div class="progress-label">
+              <span>Trades</span>
+              <span class="{{ 'green' if progress.trades >= 200 else 'red' }}">{{ progress.trades }}/200</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill blue" style="width:{{ progress.trades_pct }}%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">
+              <span>Days</span>
+              <span class="{{ 'green' if progress.days >= 7 else 'yellow' }}">{{ progress.days }}/7</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill yellow" style="width:{{ progress.days_pct }}%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">
+              <span>Win Rate</span>
+              <span class="{{ 'green' if progress.win_rate_met else 'red' }}">{{ "%.1f"|format(progress.win_rate) }}% (need &gt;55%)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill {{ 'green' if progress.win_rate_met else 'red' }}" style="width:{{ progress.win_rate_pct }}%"></div></div>
+          </div>
+          <div class="progress-item">
+            <div class="progress-label">
+              <span>Profit Factor</span>
+              <span class="{{ 'green' if progress.pf_met else 'red' }}">{{ "%.2f"|format(progress.profit_factor) }} (need &gt;1.5)</span>
+            </div>
+            <div class="bar-bg"><div class="bar-fill {{ 'green' if progress.pf_met else 'red' }}" style="width:{{ progress.pf_pct }}%"></div></div>
+          </div>
+        </div>
+        <div class="lock-badge {{ 'unlocked' if progress.all_met else 'locked' }}">
+          {% if progress.all_met %}
+          PHASE 2 UNLOCKED
+          {% else %}
+          LOCKED — {{ progress.reason }}
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Open Positions -->
+      <div class="side-card">
+        <div class="side-card-title">Open Positions</div>
+        <div class="table-container">
+          <table class="compact">
+            <thead>
+              <tr>
+                <th>Pair</th>
+                <th class="r">Entry</th>
+                <th class="r">P&L</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in open_trades %}
+              <tr>
+                <td>{{ t.symbol }}</td>
+                <td class="r">${{ "%.2f"|format(t.entry_price) }}</td>
+                <td class="r {{ 'green' if t.pnl_pct >= 0 else 'red' }}">{{ "%+.2f"|format(t.pnl_pct) }}%</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="3" class="c muted" style="padding:16px;">No open positions</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- System Log -->
+      <div class="side-card">
+        <div class="side-card-title">System Log</div>
+        <div class="log-box">{{ build_log }}</div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    Harmesh Trading System v3.0 | Backtest data: {{ metrics[6].sub if metrics|length > 6 else 'N/A' }}
+    | Auto-refresh every 30s
+  </footer>
+</div>
+
+<script>
+const equityData = {{ equity_json|safe }};
+const underwaterData = {{ underwater_json|safe }};
+const btTrades = {{ bt_trades_json|safe }};
+let currentChart = 'equity';
+let chartInstance = null;
+
+const COLORS = { green: '#5cbd6c', red: '#ff6b6b', blue: '#5c9bdb', yellow: '#eacd5c', bg: '#0a0e14' };
+
+function gradient(ctx, c1, c2) {
+  const g = ctx.createLinearGradient(0,0,0,280);
+  g.addColorStop(0, c1); g.addColorStop(1, c2);
+  return g;
+}
+
+function renderChart(type) {
+  if (chartInstance) chartInstance.destroy();
+  const ctx = document.getElementById('mainChart').getContext('2d');
+
+  const charts = {
+    equity: {
+      type: 'line',
+      data: {
+        labels: equityData.map((_,i) => i),
+        datasets: [{
+          data: equityData,
+          borderColor: COLORS.blue,
+          backgroundColor: gradient(ctx, 'rgba(92,155,219,0.12)', 'rgba(92,155,219,0)'),
+          fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false },
+          tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toLocaleString(undefined,{minimumFractionDigits:2}) } }
+        },
+        scales: {
+          x: { display: false },
+          y: { grid: { color: '#1a1e24' }, ticks: { color: '#6a6e74', callback: v => '$' + v.toLocaleString() } }
+        }
+      }
+    },
+    underwater: {
+      type: 'line',
+      data: {
+        labels: underwaterData.map((_,i) => i),
+        datasets: [{
+          data: underwaterData,
+          borderColor: COLORS.red,
+          backgroundColor: gradient(ctx, 'rgba(255,107,107,0.15)', 'rgba(255,107,107,0)'),
+          fill: true, borderWidth: 2, pointRadius: 0, tension: 0.3,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { display: false },
+          y: { grid: { color: '#1a1e24' }, ticks: { color: '#6a6e74', callback: v => v.toFixed(1) + '%' }, reverse: true }
+        }
+      }
+    },
+    pnldist: {
+      type: 'bar',
+      data: {
+        labels: btTrades.map((_,i) => i+1),
+        datasets: [{
+          data: btTrades.map(t => t.pnl),
+          backgroundColor: btTrades.map(t => t.pnl >= 0 ? COLORS.green : COLORS.red),
+          borderWidth: 0,
+          borderRadius: 2,
+        }]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
+        },
+        scales: {
+          x: { display: false },
+          y: { grid: { color: '#1a1e24' }, ticks: { color: '#6a6e74', callback: v => '$' + v } }
+        }
+      }
+    }
+  };
+
+  const config = charts[type] || charts.equity;
+  chartInstance = new Chart(ctx, config);
+}
+
+document.querySelectorAll('.chart-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.chart-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+    renderChart(this.dataset.chart);
+  });
+});
+
+renderChart('equity');
+setTimeout(() => location.reload(), 30000);
+</script>
+</body>
+</html>
