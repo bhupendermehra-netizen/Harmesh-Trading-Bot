@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harmesh — Performance Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#0a0e17; color:#e2e8f0; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
+.header { background:linear-gradient(135deg,#0f172a,#1e293b); border-bottom:1px solid #1e293b; padding:24px 32px; }
+.header h1 { font-size:24px; font-weight:700; }
+.header .sub { color:#64748b; font-size:14px; margin-top:4px; }
+.dashboard { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:16px; padding:24px 32px; }
+.section { padding:0 32px 24px; }
+.section h2 { font-size:18px; font-weight:600; margin-bottom:16px; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; }
+.chart-grid { display:grid; grid-template-columns:2fr 1fr; gap:16px; padding:0 32px 24px; }
+.chart-full { padding:0 32px 24px; }
+.chart-box { background:#111827; border:1px solid #1e293b; border-radius:12px; padding:20px; }
+.chart-box h3 { font-size:14px; color:#64748b; margin-bottom:12px; font-weight:500; }
+.metrics-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:12px; }
+.metric-item { padding:12px; background:#0a0e17; border-radius:8px; }
+.metric-item .label { color:#64748b; font-size:12px; }
+.metric-item .value { font-size:18px; font-weight:600; margin-top:2px; }
+.row { display:flex; gap:16px; padding:0 32px 24px; flex-wrap:wrap; }
+.row > div { flex:1; min-width:200px; }
+table { width:100%; border-collapse:collapse; font-size:13px; }
+th { text-align:left; color:#64748b; font-weight:500; text-transform:uppercase; font-size:11px; padding:8px 12px; border-bottom:1px solid #1e293b; }
+td { padding:8px 12px; border-bottom:1px solid #1e293b; color:#e2e8f0; }
+.pos { color:#22c55e; }
+.neg { color:#ef4444; }
+@media (max-width:768px) { .chart-grid { grid-template-columns:1fr; } .dashboard { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="header">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px;">
+<div>
+<h1>Harmesh Performance Dashboard</h1>
+<div class="sub">BacktestStrategy | BTC/USDT (1h) | 2026-04-11 to 2026-06-10</div>
+</div>
+<div style="text-align:right;">
+<div style="font-size:36px;font-weight:700;color:#ef4444">-14.69%</div>
+<div style="color:#64748b;font-size:13px;">$10,000 → $8,530.87</div>
+</div>
+</div>
+<div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;">
+<span style="background:#eab30822;color:#eab308;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">Fair</span> <span style="background:#ef444422;color:#ef4444;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">Losing</span> <span style="background:#ef444422;color:#ef4444;padding:2px 10px;border-radius:99px;font-size:12px;font-weight:600;">Low</span>
+</div>
+</div>
+
+<div class="dashboard">
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #3b82f6;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">📊 Total Trades</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">19</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">3W / 16L</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #ef4444;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">🎯 Win Rate</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">15.8%</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Low</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #ef4444;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">💰 Profit Factor</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">0.17</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Losing</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #ef4444;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">📉 Max Drawdown</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">58.0%</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Current: 57.4%</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #3b82f6;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">📈 Sharpe Ratio</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">0.53</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Fair</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #8b5cf6;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">🛡️ Sortino Ratio</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">0.72</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Downside-focused</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #eab308;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">⚡ Calmar Ratio</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">-1.57</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Return / Max DD</div>
+    </div>
+
+    <div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:20px;border-left:4px solid #ef4444;">
+        <div style="color:#64748b;font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;">📋 Expectancy</div>
+        <div style="color:#e2e8f0;font-size:28px;font-weight:700;margin-top:8px;">$-77.32</div>
+        <div style="color:#64748b;font-size:13px;margin-top:4px;">Avg trade: $-77.32</div>
+    </div>
+</div>
+
+<div class="chart-grid">
+<div class="chart-box">
+<h3>Equity Curve</h3>
+<canvas id="equityChart" height="280"></canvas>
+</div>
+<div class="chart-box">
+<h3>Underwater (Drawdown)</h3>
+<canvas id="underwaterChart" height="280"></canvas>
+</div>
+</div>
+
+<div class="chart-grid">
+<div class="chart-box">
+<h3>PnL Distribution (per trade)</h3>
+<canvas id="pnlChart" height="200"></canvas>
+</div>
+<div class="chart-box">
+<h3>Monthly Returns</h3>
+<canvas id="monthlyChart" height="200"></canvas>
+</div>
+</div>
+
+<div class="section">
+<h2>Trade Details</h2>
+<div style="background:#111827;border:1px solid #1e293b;border-radius:12px;overflow-x:auto;">
+<table>
+<thead>
+<tr>
+<th>#</th><th>Side</th><th>Entry</th><th>Exit</th><th>Entry Price</th><th>Exit Price</th><th>PnL</th><th>PnL%</th><th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-13 13:00:00</td>
+<td>2026-04-13 14:00:00</td>
+<td>$71590.99</td>
+<td>$72400.15</td>
+<td class="neg">$-56.51</td>
+<td class="neg">-1.13%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>2</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-13 14:00:00</td>
+<td>2026-04-13 19:00:00</td>
+<td>$72327.75</td>
+<td>$73322.82</td>
+<td class="neg">$-68.40</td>
+<td class="neg">-1.38%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>3</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-13 19:00:00</td>
+<td>2026-04-13 22:00:00</td>
+<td>$73249.50</td>
+<td>$74627.04</td>
+<td class="neg">$-92.86</td>
+<td class="neg">-1.88%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>4</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-13 22:00:00</td>
+<td>2026-04-14 14:00:00</td>
+<td>$74552.41</td>
+<td>$75013.62</td>
+<td class="neg">$-30.26</td>
+<td class="neg">-0.62%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>5</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-14 14:00:00</td>
+<td>2026-04-14 18:00:00</td>
+<td>$75088.63</td>
+<td>$74093.19</td>
+<td class="neg">$-64.64</td>
+<td class="neg">-1.33%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>6</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-14 18:00:00</td>
+<td>2026-04-17 13:00:00</td>
+<td>$74167.28</td>
+<td>$77340.12</td>
+<td class="pos">$+207.21</td>
+<td class="pos">+4.28%</td>
+<td>take_profit</td>
+</tr><tr>
+<td>7</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-17 16:00:00</td>
+<td>2026-04-18 08:00:00</td>
+<td>$77935.00</td>
+<td>$76738.63</td>
+<td class="neg">$-75.94</td>
+<td class="neg">-1.54%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>8</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-18 09:00:00</td>
+<td>2026-04-18 11:00:00</td>
+<td>$76676.49</td>
+<td>$76039.05</td>
+<td class="neg">$-40.81</td>
+<td class="neg">-0.83%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>9</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-18 12:00:00</td>
+<td>2026-04-18 18:00:00</td>
+<td>$76283.18</td>
+<td>$75651.78</td>
+<td class="neg">$-40.47</td>
+<td class="neg">-0.83%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>10</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-18 18:00:00</td>
+<td>2026-04-19 07:00:00</td>
+<td>$75727.43</td>
+<td>$75252.34</td>
+<td class="neg">$-30.54</td>
+<td class="neg">-0.63%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>11</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-19 07:00:00</td>
+<td>2026-04-19 13:00:00</td>
+<td>$75177.09</td>
+<td>$75921.75</td>
+<td class="neg">$-48.07</td>
+<td class="neg">-0.99%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>12</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-19 13:00:00</td>
+<td>2026-04-19 20:00:00</td>
+<td>$75845.83</td>
+<td>$74630.00</td>
+<td class="pos">$+77.42</td>
+<td class="pos">+1.60%</td>
+<td>take_profit</td>
+</tr><tr>
+<td>13</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-19 20:00:00</td>
+<td>2026-04-20 07:00:00</td>
+<td>$74555.37</td>
+<td>$74837.17</td>
+<td class="neg">$-18.40</td>
+<td class="neg">-0.38%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>14</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-20 09:00:00</td>
+<td>2026-04-20 18:00:00</td>
+<td>$74987.71</td>
+<td>$76423.69</td>
+<td class="neg">$-93.05</td>
+<td class="neg">-1.91%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>15</td>
+<td style="text-transform:uppercase;font-weight:600;">short</td>
+<td>2026-04-20 18:00:00</td>
+<td>2026-04-22 02:00:00</td>
+<td>$76347.27</td>
+<td>$77604.71</td>
+<td class="neg">$-79.26</td>
+<td class="neg">-1.65%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>16</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-22 02:00:00</td>
+<td>2026-04-22 03:00:00</td>
+<td>$77682.31</td>
+<td>$77521.48</td>
+<td class="neg">$-9.88</td>
+<td class="neg">-0.21%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>17</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-22 03:00:00</td>
+<td>2026-04-22 04:00:00</td>
+<td>$77599.00</td>
+<td>$77523.00</td>
+<td class="neg">$-4.67</td>
+<td class="neg">-0.10%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>18</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-22 04:00:00</td>
+<td>2026-04-22 05:00:00</td>
+<td>$77600.52</td>
+<td>$77994.93</td>
+<td class="pos">$+24.22</td>
+<td class="pos">+0.51%</td>
+<td>stop_loss</td>
+</tr><tr>
+<td>19</td>
+<td style="text-transform:uppercase;font-weight:600;">long</td>
+<td>2026-04-22 06:00:00</td>
+<td>2026-06-10 10:00:00</td>
+<td>$78088.73</td>
+<td>$61348.00</td>
+<td class="neg">$-1024.21</td>
+<td class="neg">-21.44%</td>
+<td>end_of_data</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="section">
+<h2>Risk & Performance Metrics</h2>
+<div style="background:{COLORS['card']};border:1px solid {COLORS['border']};border-radius:12px;padding:20px;">
+<div class="metrics-grid">
+<div class="metric-item">
+<div class="label">Total Return</div>
+<div class="value" style="color:#ef4444;">-14.69%</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Return including open positions</div>
+</div><div class="metric-item">
+<div class="label">Annualized Return</div>
+<div class="value" style="color:#ef4444;">-57.36%</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Annualized from equity curve</div>
+</div><div class="metric-item">
+<div class="label">Volatility (ann.)</div>
+<div class="value" style="color:#e2e8f0;">417.26%</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Annualized std dev of returns</div>
+</div><div class="metric-item">
+<div class="label">Max Drawdown</div>
+<div class="value" style="color:#e2e8f0;">57.95%</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Peak-to-trough decline</div>
+</div><div class="metric-item">
+<div class="label">Sharpe Ratio</div>
+<div class="value" style="color:#e2e8f0;">0.53</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Rating: Fair</div>
+</div><div class="metric-item">
+<div class="label">Sortino Ratio</div>
+<div class="value" style="color:#e2e8f0;">0.72</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Downside deviation only</div>
+</div><div class="metric-item">
+<div class="label">Calmar Ratio</div>
+<div class="value" style="color:#ef4444;">-1.57</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Return / Max DD</div>
+</div><div class="metric-item">
+<div class="label">Profit Factor</div>
+<div class="value" style="color:#e2e8f0;">0.17</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Gross profit / gross loss</div>
+</div><div class="metric-item">
+<div class="label">Win Rate</div>
+<div class="value" style="color:#e2e8f0;">15.8%</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">3 of 19</div>
+</div><div class="metric-item">
+<div class="label">Avg Win</div>
+<div class="value" style="color:#e2e8f0;">$+102.95</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Average winning trade</div>
+</div><div class="metric-item">
+<div class="label">Avg Loss</div>
+<div class="value" style="color:#e2e8f0;">$-111.12</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Average losing trade</div>
+</div><div class="metric-item">
+<div class="label">Avg Trade</div>
+<div class="value" style="color:#e2e8f0;">$-77.32</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Average trade PnL</div>
+</div><div class="metric-item">
+<div class="label">Best Trade</div>
+<div class="value" style="color:#e2e8f0;">$+207.21</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">long @ $74167.28318999999</div>
+</div><div class="metric-item">
+<div class="label">Worst Trade</div>
+<div class="value" style="color:#e2e8f0;">$-1024.21</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">long @ $78088.73071999999</div>
+</div><div class="metric-item">
+<div class="label">Avg Duration</div>
+<div class="value" style="color:#e2e8f0;">72.7h</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Median: 6.0h</div>
+</div><div class="metric-item">
+<div class="label">Max Consec Wins</div>
+<div class="value" style="color:#e2e8f0;">1</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Best streak</div>
+</div><div class="metric-item">
+<div class="label">Max Consec Losses</div>
+<div class="value" style="color:#e2e8f0;">5</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Worst streak</div>
+</div><div class="metric-item">
+<div class="label">Expectancy</div>
+<div class="value" style="color:#e2e8f0;">$-77.32</div>
+<div style="color:#64748b;font-size:11px;margin-top:2px;">Expected value per trade</div>
+</div>
+</div>
+</div>
+</div>
+
+<div class="section" style="padding-bottom:32px;">
+<h2>Trade Statistics by Side</h2>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+<div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px;">
+<div style="font-size:14px;font-weight:600;text-transform:uppercase;color:#64748b;margin-bottom:8px;">LONG Trades</div>
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#64748b;">Count</span><span>10</span></div>
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#64748b;">Win Rate</span><span>20.0%</span></div>
+<div style="display:flex;justify-content:space-between;"><span style="color:#64748b;">Net P&L</span><span class="neg">$-1059.74</span></div>
+</div><div style="background:#111827;border:1px solid #1e293b;border-radius:12px;padding:16px;">
+<div style="font-size:14px;font-weight:600;text-transform:uppercase;color:#64748b;margin-bottom:8px;">SHORT Trades</div>
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#64748b;">Count</span><span>9</span></div>
+<div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="color:#64748b;">Win Rate</span><span>11.1%</span></div>
+<div style="display:flex;justify-content:space-between;"><span style="color:#64748b;">Net P&L</span><span class="neg">$-409.39</span></div>
+</div>
+</div>
+</div>
+
+<script>
+const equityData = [20005.01, 19755.12, 19553.54, 19564.04, 19628.33, 9690.98, 9716.46, 9658.8, 9680.58, 9741.88, 9719.36, 9722.58, 9662.56, 9764.11, 9725.39, 9746.6, 9894.54, 9860.17, 9849.03, 9835.05, 9767.51, 9732.33, 9730.54, 19418.41, 19322.23, 19261.34, 19474.83, 9717.71, 19453.68, 19246.17, 19222.89, 19232.77, 19221.15, 19165.89, 19246.23, 9550.43, 9601.1, 9601.45, 9571.63, 9552.63, 9521.03, 9532.96, 9575.94, 9527.91, 9555.39, 9526.94, 9521.61, 9519.13, 9530.79, 9508.66, 9516.68, 9555.92, 9548.29, 9563.18, 9628.19, 9525.58, 9534.16, 9481.01, 9493.65, 9481.08, 9438.9, 9447.54, 9462.22, 9491.75, 9475.22, 9400.61, 9441.53, 9437.18, 9453.01, 9452.54, 9469.27, 9496.46, 9594.76, 9571.68, 9571.37, 9563.11, 9572.11, 9579.38, 9564.39, 9571.87, 9590.64, 9596.17, 9657.91, 9653.46, 9597.98, 9675.27, 9693.55, 9724.36, 9753.38, 9770.29, 9760.07, 9755.21, 9774.24, 9761.63, 9743.46, 9764.92, 9702.83, 9680.95, 9656.11, 9652.58, 9650.46, 9683.02, 9692.06, 9686.02, 9695.95, 9729.43, 9713.96, 9717.04, 9731.46, 9759.98, 9763.89, 9717.31, 9737.6, 9792.05, 9745.38, 9724.96, 9700.58, 9723.08, 9733.56, 9734.84, 9650.97, 9650.14, 9647.82, 9656.47, 9653.76, 9758.87, 9741.21, 9721.87, 9596.06, 9619.79, 9621.11, 9572.27, 9550.54, 9565.54, 9532.87, 9560.66, 9562.07, 9575.06, 9495.15, 9492.98, 9484.66, 9484.06, 9468.1, 9502.77, 9480.68, 9477.38, 9477.52, 9505.76, 9500.99, 9529.31, 9541.32, 9542.86, 9495.98, 9530.72, 9526.16, 9513.44, 9506.21, 9418.75, 9396.08, 9342.21, 9379.19, 9426.28, 9481.74, 9476.23, 9476.37, 9474.6, 9485.12, 9513.01, 9509.34, 9515.5, 9473.6, 9472.0, 9502.64, 9430.47, 9419.79, 9425.89, 9370.6, 9370.15, 9325.98, 9274.21, 9245.09, 9269.4, 9279.65, 9276.08, 9252.05, 9275.58, 9284.0, 9277.31, 9294.48, 9305.95, 9308.48, 9297.05, 9297.15, 9278.22, 9261.67, 9232.61, 9164.94, 9157.8, 9100.12, 9067.45, 8987.52, 8895.94, 8871.77, 8890.12, 8870.91, 8782.56, 8581.65, 8668.84, 8707.19, 8670.44, 8654.86, 8639.03, 8493.2, 8466.76, 8513.18, 8509.88, 8497.41, 8485.1, 8538.93, 8595.52, 8552.41, 8529.64, 8644.87, 8649.31, 8678.31, 8654.7, 8617.5, 8644.08, 8587.5, 8576.76, 8553.26, 8551.64];
+const underwaterData = [0.0, 1.25, 2.26, 2.2, 1.88, 51.56, 51.43, 51.72, 51.61, 51.3, 51.42, 51.4, 51.7, 51.19, 51.39, 51.28, 50.54, 50.71, 50.77, 50.84, 51.17, 51.35, 51.36, 2.93, 3.41, 3.72, 2.65, 51.42, 2.76, 3.79, 3.91, 3.86, 3.92, 4.19, 3.79, 52.26, 52.01, 52.0, 52.15, 52.25, 52.41, 52.35, 52.13, 52.37, 52.24, 52.38, 52.4, 52.42, 52.36, 52.47, 52.43, 52.23, 52.27, 52.2, 51.87, 52.38, 52.34, 52.61, 52.54, 52.61, 52.82, 52.77, 52.7, 52.55, 52.64, 53.01, 52.8, 52.83, 52.75, 52.75, 52.67, 52.53, 52.04, 52.15, 52.16, 52.2, 52.15, 52.12, 52.19, 52.15, 52.06, 52.03, 51.72, 51.74, 52.02, 51.64, 51.54, 51.39, 51.25, 51.16, 51.21, 51.24, 51.14, 51.2, 51.29, 51.19, 51.5, 51.61, 51.73, 51.75, 51.76, 51.6, 51.55, 51.58, 51.53, 51.37, 51.44, 51.43, 51.35, 51.21, 51.19, 51.43, 51.32, 51.05, 51.29, 51.39, 51.51, 51.4, 51.34, 51.34, 51.76, 51.76, 51.77, 51.73, 51.74, 51.22, 51.31, 51.4, 52.03, 51.91, 51.91, 52.15, 52.26, 52.18, 52.35, 52.21, 52.2, 52.14, 52.54, 52.55, 52.59, 52.59, 52.67, 52.5, 52.61, 52.62, 52.62, 52.48, 52.51, 52.37, 52.31, 52.3, 52.53, 52.36, 52.38, 52.44, 52.48, 52.92, 53.03, 53.3, 53.12, 52.88, 52.6, 52.63, 52.63, 52.64, 52.59, 52.45, 52.47, 52.43, 52.64, 52.65, 52.5, 52.86, 52.91, 52.88, 53.16, 53.16, 53.38, 53.64, 53.79, 53.66, 53.61, 53.63, 53.75, 53.63, 53.59, 53.63, 53.54, 53.48, 53.47, 53.53, 53.53, 53.62, 53.7, 53.85, 54.19, 54.22, 54.51, 54.67, 55.07, 55.53, 55.65, 55.56, 55.66, 56.1, 57.1, 56.67, 56.47, 56.66, 56.74, 56.82, 57.54, 57.68, 57.44, 57.46, 57.52, 57.59, 57.32, 57.03, 57.25, 57.36, 56.79, 56.76, 56.62, 56.74, 56.92, 56.79, 57.07, 57.13, 57.24, 57.25];
+const monthlyData = {"2026-04": -52.19, "2026-05": -7.2, "2026-06": -3.64};
+const tradePnls = [-56.51, -68.4, -92.86, -30.26, -64.64, 207.21, -75.94, -40.81, -40.47, -30.54, -48.07, 77.42, -18.4, -93.05, -79.26, -9.88, -4.67, 24.22, -1024.21];
+const tradeLabels = ["short $-57", "short $-68", "short $-93", "short $-30", "long $-65", "long $207", "long $-76", "long $-41", "long $-40", "long $-31", "short $-48", "short $77", "short $-18", "short $-93", "short $-79", "long $-10", "long $-5", "long $24", "long $-1024"];
+
+// Helper: gradient fill
+function gradient(ctx, c1, c2) {
+    const g = ctx.createLinearGradient(0,0,0,280);
+    g.addColorStop(0, c1);
+    g.addColorStop(1, c2);
+    return g;
+}
+
+// Equity curve
+new Chart(document.getElementById('equityChart'), {
+    type: 'line',
+    data: {
+        labels: equityData.map((_,i) => i),
+        datasets: [{
+            data: equityData,
+            borderColor: '#3b82f6',
+            backgroundColor: gradient(document.getElementById('equityChart').getContext('2d'), 'rgba(59,130,246,0.15)', 'rgba(59,130,246,0)'),
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { display: false },
+            y: { 
+                grid: { color: '#1e293b' },
+                ticks: { color: '#64748b', callback: v => '$' + v.toLocaleString() }
+            }
+        }
+    }
+});
+
+// Underwater
+new Chart(document.getElementById('underwaterChart'), {
+    type: 'line',
+    data: {
+        labels: underwaterData.map((_,i) => i),
+        datasets: [{
+            data: underwaterData,
+            borderColor: '#ef4444',
+            backgroundColor: gradient(document.getElementById('underwaterChart').getContext('2d'), 'rgba(239,68,68,0.2)', 'rgba(239,68,68,0)'),
+            fill: true,
+            borderWidth: 2,
+            pointRadius: 0,
+            tension: 0.3,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { display: false },
+            y: { 
+                grid: { color: '#1e293b' },
+                ticks: { color: '#64748b', callback: v => v.toFixed(1) + '%' },
+                reverse: true
+            }
+        }
+    }
+});
+
+// PnL Distribution
+new Chart(document.getElementById('pnlChart'), {
+    type: 'bar',
+    data: {
+        labels: tradePnls.map((_,i) => i+1),
+        datasets: [{
+            data: tradePnls,
+            backgroundColor: tradePnls.map(v => v >= 0 ? '#22c55e' : '#ef4444'),
+            borderWidth: 0,
+            borderRadius: 2,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) } }
+        },
+        scales: {
+            x: { display: false },
+            y: { 
+                grid: { color: '#1e293b' },
+                ticks: { color: '#64748b', callback: v => '$' + v }
+            }
+        }
+    }
+});
+
+// Monthly Returns
+new Chart(document.getElementById('monthlyChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(monthlyData),
+        datasets: [{
+            data: Object.values(monthlyData),
+            backgroundColor: Object.values(monthlyData).map(v => v >= 0 ? '#22c55e' : '#ef4444'),
+            borderWidth: 0,
+            borderRadius: 4,
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { 
+            legend: { display: false },
+            tooltip: { callbacks: { label: ctx => ctx.parsed.y.toFixed(2) + '%' } }
+        },
+        scales: {
+            x: { 
+                grid: { color: '#1e293b' },
+                ticks: { color: '#64748b', maxRotation: 45 }
+            },
+            y: { 
+                grid: { color: '#1e293b' },
+                ticks: { color: '#64748b', callback: v => v.toFixed(1) + '%' }
+            }
+        }
+    }
+});
+</script>
+
+<div style="text-align:center;padding:16px 32px;color:#475569;font-size:12px;border-top:1px solid #1e293b;">
+Harmesh Trading System | Generated {datetime.now().strftime('%Y-%m-%d %H:%M')} | All data from corrected backtest
+</div>
+
+</body>
+</html>

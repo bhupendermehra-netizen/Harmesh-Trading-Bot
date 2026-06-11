@@ -227,7 +227,11 @@ class AdvancedPaperTradingEngine:
         for t in to_close:
             self.open_trades.remove(t)
             self.closed_trades.append(t)
-            self.balance += (t.capital_used + (t.pnl or 0.0))
+            # Short trades: received cash on entry, pay to close (exit_price * qty)
+            if t.side == "short":
+                self.balance += (t.pnl or 0.0) - t.capital_used
+            else:
+                self.balance += (t.capital_used + (t.pnl or 0.0))
             self.returns.append((t.pnl_pct or 0.0) / 100.0)
             equity = self.balance + sum(
                 ot.quantity * self.last_prices.get(ot.symbol, ot.entry_price)
@@ -431,7 +435,10 @@ class AdvancedPaperTradingEngine:
                 capital_used=capital_used,
             )
             self.open_trades.append(trade)
-            self.balance -= capital_used
+            if signal == "short":
+                self.balance += capital_used  # Receive short sale proceeds
+            else:
+                self.balance -= capital_used  # Pay for long purchase
             logger.info(
                 f"  >>> PAPER {signal.upper()} {symbol}: "
                 f"{quantity:.6f} @ ${price:.2f} | "

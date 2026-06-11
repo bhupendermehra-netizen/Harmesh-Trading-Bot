@@ -1,12 +1,10 @@
-# Harmesh - Bitcoin Trading Bot
 __pycache__/
-*.py[cod]
-venv/
+*.pyc
+.pytest_cache/
+.vscode/
+.idea/
+*.egg-info/
+dist/
+build/
 .env
-data/*.csv
-data/*.json
-!data/dashboard.json
-.cache/
-*.log
-ccxt/
-freqtrade/
+.git-askpass.sh

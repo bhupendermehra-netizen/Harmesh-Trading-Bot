@@ -52,9 +52,8 @@ class BacktestStrategy:
             regime_info=regime_info,
         )
 
-        # Map "long"/"short" to "buy"/"sell" for backtest engine
-        signal_map = {"long": "buy", "short": "sell", "hold": "hold"}
-        signal = signal_map.get(raw.get("signal", "hold"), "hold")
+        # Pass raw signal direction through — backtest engine expects "long"/"short"
+        signal = raw.get("signal", "hold")
         confidence = raw.get("confidence", 0.0)
 
         return {

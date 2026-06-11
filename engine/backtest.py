@@ -275,7 +275,11 @@ class BacktestEngine:
                     trade.pnl = (trade.entry_price - trade.exit_price) * trade.quantity
                     trade.pnl_pct = (trade.entry_price - trade.exit_price) / trade.entry_price * 100
 
-                capital += trade.pnl + (trade.quantity * trade.entry_price)
+                # Short trades: you receive cash on entry, pay to close
+                if trade.side == "short":
+                    capital += trade.pnl - (trade.quantity * trade.entry_price)
+                else:
+                    capital += trade.pnl + (trade.quantity * trade.entry_price)
                 trades.append(trade)
                 returns.append(trade.pnl_pct / 100.0)
 
@@ -288,7 +292,10 @@ class BacktestEngine:
                     trade = self._simulate_trade(df, i, signal, symbol, capital)
                     if trade:
                         open_positions[symbol] = trade
-                        capital -= trade.quantity * trade.entry_price
+                        if trade.side == "short":
+                            capital += trade.quantity * trade.entry_price  # Receive short sale proceeds
+                        else:
+                            capital -= trade.quantity * trade.entry_price  # Pay for long purchase
 
             # Record equity on EVERY candle (capital + open position value)
             pos_value = capital + sum(
@@ -316,7 +323,10 @@ class BacktestEngine:
             else:
                 trade.pnl = (trade.entry_price - trade.exit_price) * trade.quantity
                 trade.pnl_pct = (trade.entry_price - trade.exit_price) / trade.entry_price * 100
-            capital += trade.pnl + (trade.quantity * trade.entry_price)
+            if trade.side == "short":
+                capital += trade.pnl - (trade.quantity * trade.entry_price)
+            else:
+                capital += trade.pnl + (trade.quantity * trade.entry_price)
             trades.append(trade)
 
             if trade.pnl_pct:
@@ -358,8 +368,16 @@ class BacktestEngine:
 
         profit_factor = risk.compute_profit_factor(trades)
         dd_metrics = risk.compute_max_drawdown(equity_curve)
-        sharpe = risk.compute_sharpe_ratio(returns)
-        sortino = risk.compute_sortino_ratio(returns)
+
+        # Use equity-curve hourly returns for Sharpe/Sortino (per-candle sampling)
+        # This ensures the annualization factor of sqrt(365*24) is correct
+        if len(equity_curve) > 1:
+            hourly_returns = np.diff(equity_curve) / equity_curve[:-1]
+            sharpe = risk.compute_sharpe_ratio(hourly_returns.tolist())
+            sortino = risk.compute_sortino_ratio(hourly_returns.tolist())
+        else:
+            sharpe = 0.0
+            sortino = 0.0
 
         avg_win = np.mean([t.pnl for t in wins]) if wins else 0.0
         avg_loss = np.mean([t.pnl for t in losses]) if losses else 0.0
