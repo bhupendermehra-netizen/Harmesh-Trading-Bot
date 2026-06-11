@@ -206,15 +206,24 @@ WHAT WAS BUILT:
 - Verified indicators are properly computed (33 columns including macd_diff, rsi_14, bb_position, ema_9)
 - Pushed to GitHub: https://github.com/bhupendermehra-netizen/Harmesh-Trading-Bot
 - Checked OpenCode v1.15.12 installation (works with free opencode/big-pickle model)
+- Built world-class live monitoring dashboard:
+  - index.html — Full static dashboard with Chart.js (dark trading theme)
+  - scripts/generate_dashboard_data.py — One-command data bundler
+  - data/dashboard.json — Consolidated data for dashboard
+  - Updated README.md with dashboard instructions
 
 FILES CREATED/MODIFIED:
 - MODIFIED: engine/backtest_strategy.py — moved skip flag after pre-computation in set_full_data()
+- CREATED:  index.html — Live monitoring dashboard (GitHub Pages ready)
+- CREATED:  scripts/generate_dashboard_data.py — Data bundler script
+- CREATED:  data/dashboard.json — Dashboard data snapshot
+- MODIFIED: README.md — Added dashboard section
 
 FOLDERS CREATED:
-- None
+- None (files added to existing structure)
 
 PACKAGES INSTALLED:
-- None
+- None (CDN-loaded Chart.js via jsdelivr)
 
 CURRENT STATUS:
 - Phase: 1 (Paper Trading)

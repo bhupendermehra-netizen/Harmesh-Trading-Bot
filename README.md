@@ -1,6 +1,27 @@
-# Harmesh Trading System v1.0
+# Harmesh Trading System v2.0
 
 Crypto trading bot for Termux/Android. Two-phase system: paper trade first, then unlock live.
+
+## 🖥️ Live Dashboard
+
+Monitor the bot in your browser — works on GitHub Pages:
+
+```bash
+# Generate fresh dashboard data, then push to GitHub:
+cd ~/harmesh && source venv/bin/activate
+python scripts/generate_dashboard_data.py
+git add -A && git commit -m "update dashboard" && git push
+```
+
+Then visit: `https://bhupendermehra-netizen.github.io/Harmesh-Trading-Bot/`
+
+The dashboard shows:
+- **Key Metrics** — Score, Win Rate, Profit Factor, Return, Drawdown, Sharpe
+- **Strategy Comparison** — Bar/line chart of all 3 strategy families
+- **Equity Curve** — Portfolio value over time
+- **Strategy Combos** — Ranked table of all combinations
+- **Open Trades** — Active positions with entry, SL, TP
+- **Best Parameters** — Optimized params per strategy
 
 ## Quick Start
 
